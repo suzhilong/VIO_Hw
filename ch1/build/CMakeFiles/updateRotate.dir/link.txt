@@ -1,1 +1,0 @@
-/usr/bin/c++   -g   CMakeFiles/updateRotate.dir/updateRotate.cpp.o  -o updateRotate -rdynamic /usr/local/include/Sophus/build/libSophus.so -Wl,-rpath,/usr/local/include/Sophus/build 

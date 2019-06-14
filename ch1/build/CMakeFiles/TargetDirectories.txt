@@ -1,3 +1,0 @@
-/home/su/code/VIO/ch1/build/CMakeFiles/edit_cache.dir
-/home/su/code/VIO/ch1/build/CMakeFiles/rebuild_cache.dir
-/home/su/code/VIO/ch1/build/CMakeFiles/updateRotate.dir
