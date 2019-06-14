@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     //matrix形式的矩阵 result_matrix
     //TODO
     Eigen::Vector3d VectorMatrix(vector[0], vector[1], vector[2]);
-    Eigen::Matrix<double, 3, 1> result_matrix = R * VectorMatrix;
+    Eigen::Matrix<double, 3, 1> result_matrix = R * VectorMatrix;//3*3 和 3*1 的矩阵相乘后是一个3*1的向量
     //sophus形式的矩阵 result_sophus
     //TODO
     Eigen::Vector3d update_so3(vector[0], vector[1], vector[2]);
