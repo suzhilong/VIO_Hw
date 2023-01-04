@@ -42,8 +42,8 @@ position2 = data[:,[tx_index, tx_index + 1, tx_index + 2]]
 
 ### plot 3d
 fig = plt.figure()
-# ax = fig.gca(projection='3d')
-ax = fig.add_subplot(projection = '3d')
+ax = fig.gca(projection='3d')
+# ax = fig.add_subplot(projection = '3d')
 
 ax.plot(position[:,0], position[:,1], position[:,2], label='gt')
 ax.plot(position1[:,0], position1[:,1], position1[:,2], label='imu_int')

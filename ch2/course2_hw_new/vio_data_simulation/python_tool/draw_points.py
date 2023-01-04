@@ -26,7 +26,7 @@ with open(filepath + '/all_points.txt', 'r') as f:
   
     for line in data:  
         odom = line.split()        #将单个数据分隔开存好  
-        numbers_float = map(float, odom) #转化为浮点数  
+        numbers_float = list(map(float, odom)) #转化为浮点数  
         x.append( numbers_float[0] )
         y.append( numbers_float[1] )
         z.append( numbers_float[2] )
@@ -41,7 +41,7 @@ with open(filepath + '/cam_pose.txt', 'r') as f:   #   imu_circle   imu_spline
     data = f.readlines()  #txt中所有字符串读入data    
     for line in data:  
         odom = line.split()        #将单个数据分隔开存好  
-        numbers_float = map(float, odom) #转化为浮点数  
+        numbers_float = list(map(float, odom)) #转化为浮点数  
 
         #timestamp.append( numbers_float[0])        
         quaterntions.append( [numbers_float[qw_index], numbers_float[qw_index+1],numbers_float[qw_index+2],numbers_float[qw_index+3]   ] )   # qw,qx,qy,qz
@@ -51,7 +51,9 @@ with open(filepath + '/cam_pose.txt', 'r') as f:   #   imu_circle   imu_spline
 ## plot 3d        
 fig = plt.figure()
 plt.ion()
-ax = fig.gca(projection='3d')
+# ax = fig.gca(projection='3d')
+ax = fig.add_subplot(projection = '3d')
+ax = Axes3D(fig)
 
 ax.set_xlabel('X')     
 ax.set_ylabel('Y')
@@ -76,7 +78,7 @@ for i in range(0,400,5):
         data = f.readlines()  #txt中所有字符串读入data  
         for line in data:  
             odom = line.split()        #将单个数据分隔开存好  
-            numbers_float = map(float, odom) #转化为浮点数  
+            numbers_float = list(map(float, odom)) #转化为浮点数  
             x1.append( numbers_float[0] )
             y1.append( numbers_float[1] )
             z1.append( numbers_float[2] )
@@ -88,7 +90,7 @@ for i in range(0,400,5):
         data = f.readlines()  # txt中所有字符串读入data
         for line in data:
             odom = line.split()  # 将单个数据分隔开存好
-            numbers_float = map(float, odom)  # 转化为浮点数
+            numbers_float = list(map(float, odom))  # 转化为浮点数
             ax.plot([numbers_float[0], numbers_float[3]], [numbers_float[1], numbers_float[4]],'b' ,zs=[numbers_float[2], numbers_float[5]])
         
     ax.scatter(x1, y1, z1,c='r',marker='^')
@@ -98,7 +100,8 @@ for i in range(0,400,5):
     ax.set_xlim(-15, 20)
     ax.set_ylim(-15, 20)
     ax.set_zlim(0, 20)
-    ax.legend()
+    ax.legend(["my legend"], fontsize="x-large")
+    # plt.ioff()
     plt.show() 
     plt.pause(0.01)
     
