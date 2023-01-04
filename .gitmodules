@@ -1,0 +1,14 @@
+[submodule "thirdparty/Sophus"]
+	path = thirdparty/Sophus
+	url = https://github.com/strasdat/Sophus.git
+[submodule "thirdparty/eigen"]
+	path = thirdparty/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "thirdparty/fmt"]
+	path = thirdparty/fmt
+	url = https://github.com/fmtlib/fmt.git
+	branch = 117fc67
+[submodule "thirdparty/opencv"]
+	path = thirdparty/opencv
+	url = https://github.com/opencv/opencv.git
+
