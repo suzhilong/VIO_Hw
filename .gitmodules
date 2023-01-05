@@ -11,4 +11,6 @@
 [submodule "thirdparty/opencv"]
 	path = thirdparty/opencv
 	url = https://github.com/opencv/opencv.git
-
+[submodule "ch2/course2_hw_new/vio_sim_ws/src/kalibr_allan"]
+        path = ch2/course2_hw_new/vio_sim_ws/src/kalibr_allan
+        url = https://github.com/rpng/kalibr_allan.git
