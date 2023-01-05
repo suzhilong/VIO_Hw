@@ -1,8 +1,10 @@
-cmake_minimum_required( VERSION 2.8 )
-project( Hw1 )
+cmake_minimum_required(VERSION 3.0)
+project(check_update)
 
-find_package( Sophus REQUIRED )
-include_directories( ${Sophus_INCLUDE_DIRS} )
+set(CMAKE_BUILD_TYPE "Debug")
 
-add_executable( updateRotate updateRotate.cpp )
-target_link_libraries( updateRotate ${Sophus_LIBRARIES} )
+include_directories("/usr/include/eigen3")
+add_executable(check_update check_quaterniond_so3_update.cpp)
+
+find_package(FMT REQUIRED)
+target_link_libraries(check_update fmt::fmt)
