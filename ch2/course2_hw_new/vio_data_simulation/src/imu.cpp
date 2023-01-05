@@ -158,14 +158,16 @@ void IMU::testImu(std::string src, std::string dist)
         MotionData imupose_pre = imudata[i-1]; // 上一时刻的数据
         MotionData imupose = imudata[i]; // 下一时刻的数据
         Eigen::Quaterniond dq;
-        Eigen::Vector3d dtheta_half = (imupose_pre.imu_gyro+ imupose.imu_gyro)* dt / 4.0;
+        Eigen::Vector3d dtheta_half = (imupose_pre.imu_gyro + imupose.imu_gyro) * dt / 4.0;
         dq.w() = 1;
         dq.x() = dtheta_half.x();
         dq.y() = dtheta_half.y();
         dq.z() = dtheta_half.z();
         dq.normalize(); // 归一化
-        // 下一时刻对应的转换矩阵是 Qwb * dq，不是Qwb
-        Eigen::Vector3d acc_w = (Qwb * dq * (imupose.imu_acc) + gw + Qwb * (imupose_pre.imu_acc) + gw)/2;
+        Eigen::Quaterniond Qwb_pre = Qwb;
+        // 下一时刻对应的转换矩阵是 Qwb * dq，不是 Qwb
+        Qwb = Qwb * dq;
+        Eigen::Vector3d acc_w = (Qwb_pre * imupose.imu_acc + gw + Qwb * imupose_pre.imu_acc + gw) / 2;
         Qwb = Qwb * dq;
         Pwb = Pwb + Vw * dt + 0.5 * dt * dt * acc_w;
         Vw = Vw + acc_w * dt;
