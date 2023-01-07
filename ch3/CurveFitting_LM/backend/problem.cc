@@ -102,6 +102,7 @@ bool Problem::Solve(int iterations) {
             oneStepSuccess = IsGoodStepInLM();
             // 后续处理，
             if (oneStepSuccess) {
+                std::cout << "    oneStepSuccess: " << "Lambda= " << currentLambda_ << std::endl;
                 // 在新线性化点 构建 hessian
                 MakeHessian();
                 // TODO:: 这个判断条件可以丢掉，条件 b_max <= 1e-12 很难达到，这里的阈值条件不应该用绝对值，而是相对值
@@ -113,6 +114,7 @@ bool Problem::Solve(int iterations) {
 //                stop = (b_max <= 1e-12);
                 false_cnt = 0;
             } else {
+                std::cout << "    oneStepFailed " << false_cnt << " times: " << "Lambda= " << currentLambda_ << std::endl;
                 false_cnt++;
                 RollbackStates();   // 误差没下降，回滚
             }
@@ -124,7 +126,7 @@ bool Problem::Solve(int iterations) {
             stop = true;
     }
     std::cout << "problem solve cost: " << t_solve.toc() << " ms" << std::endl;
-    std::cout << "   makeHessian cost: " << t_hessian_cost_ << " ms" << std::endl;
+    std::cout << "makeHessian cost: " << t_hessian_cost_ << " ms" << std::endl;
     return true;
 }
 
