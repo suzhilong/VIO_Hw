@@ -99,7 +99,10 @@ bool Problem::Solve(int iterations) {
             // 更新状态量 X = X+ delta_x
             UpdateStates();
             // 判断当前步是否可行以及 LM 的 lambda 怎么更新
-            oneStepSuccess = IsGoodStepInLM();
+            // oneStepSuccess = IsGoodStepInLM();
+            // oneStepSuccess = IsGoodStepInLM1();
+            oneStepSuccess = IsGoodStepInLM2();
+
             // 后续处理，
             if (oneStepSuccess) {
                 std::cout << "    oneStepSuccess: " << "Lambda= " << currentLambda_ << std::endl;
@@ -304,6 +307,78 @@ bool Problem::IsGoodStepInLM() {
     } else {
         currentLambda_ *= ni_;
         ni_ *= 2;
+        return false;
+    }
+}
+
+bool Problem::IsGoodStepInLM1() {
+    ulong size = Hessian_.cols();
+    assert(Hessian_.rows() == Hessian_.cols() && "Hessian is not square");
+    MatXX DiagH(MatXX::Zero(size, size));
+    for (ulong i = 0; i < size; ++i) {
+        DiagH(i, i) = std::fabs(Hessian_(i, i));
+    }
+    
+    double scale = 0;
+    scale = delta_x_.transpose() * (currentLambda_ * DiagH * delta_x_ + b_);
+    scale += 1e-3;    // make sure it's non-zero :)
+
+    // recompute residuals after update state
+    // 统计所有的残差
+    double tempChi = 0.0;
+    for (auto edge: edges_) {
+        edge.second->ComputeResidual();
+        tempChi += edge.second->Chi2();
+    }
+
+    double rho = (currentChi_ - tempChi) / scale;
+    if (rho > 0 && isfinite(tempChi))   // last step was good, 误差在下降
+    {
+        currentLambda_ = std::min(currentLambda_ / 9.0, 1.0e-7);
+        currentChi_ = tempChi;
+        return true;
+    } else {
+        currentLambda_ = std::min(currentLambda_ * 11.0, 1.0e-7);
+        return false;
+    }
+}
+
+bool Problem::IsGoodStepInLM2() {
+    // recompute residuals after update state
+    // 统计所有的残差
+    double tempChi = 0.0;
+    for (auto edge: edges_) {
+        edge.second->ComputeResidual();
+        tempChi += edge.second->Chi2();
+    }
+
+    // compute alpha
+    double alpha = b_.transpose() * delta_x_;
+    alpha = alpha / ((tempChi - currentChi_) / 2.0 + 2.0 * b_.transpose() * delta_x_);
+    alpha = std::max(alpha, 0.1);
+
+    // reupdate
+    RollbackStates();
+    delta_x_ *= alpha;
+    UpdateStates();
+
+    double scale = delta_x_.transpose() * (currentLambda_ * delta_x_ + b_);
+    scale += 1e-3;    // make sure it's non-zero :)
+
+    tempChi = 0.0;
+    for (auto edge: edges_) {
+        edge.second->ComputeResidual();
+        tempChi += edge.second->Chi2();
+    }
+    
+    double rho = (currentChi_ - tempChi) / scale;
+    if (rho > 0 && isfinite(tempChi))   // last step was good, 误差在下降
+    {
+        currentLambda_ = std::min(currentLambda_ / (1 + alpha), 1.0e-7);
+        currentChi_ = tempChi;
+        return true;
+    } else {
+        currentLambda_ += std::abs(currentChi_ - tempChi) / (2 * alpha);
         return false;
     }
 }
