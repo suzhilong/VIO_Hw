@@ -167,7 +167,7 @@ void IMU::testImu(std::string src, std::string dist)
         Eigen::Quaterniond Qwb_pre = Qwb;
         // 下一时刻对应的转换矩阵是 Qwb * dq，不是 Qwb
         Qwb = Qwb * dq;
-        Eigen::Vector3d acc_w = (Qwb_pre * imupose.imu_acc + gw + Qwb * imupose_pre.imu_acc + gw) / 2;
+        Eigen::Vector3d acc_w = (Qwb_pre * imupose_pre.imu_acc + gw + Qwb * imupose.imu_acc + gw) / 2;
         Qwb = Qwb * dq;
         Pwb = Pwb + Vw * dt + 0.5 * dt * dt * acc_w;
         Vw = Vw + acc_w * dt;
