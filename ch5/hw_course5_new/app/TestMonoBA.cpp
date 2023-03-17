@@ -77,8 +77,8 @@ int main() {
         pose << cameras[i].twc, cameras[i].qwc.x(), cameras[i].qwc.y(), cameras[i].qwc.z(), cameras[i].qwc.w();
         vertexCam->SetParameters(pose);
 
-//        if(i < 2)
-//            vertexCam->SetFixed();
+        if (i < 2)
+           vertexCam->SetFixed();
 
         problem.AddVertex(vertexCam);
         vertexCams_vec.push_back(vertexCam);

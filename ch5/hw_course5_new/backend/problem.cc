@@ -315,10 +315,12 @@ void Problem::MakeHessian() {
                 // 所有的信息矩阵叠加起来
                 // TODO:: home work. 完成 H index 的填写.
                 // H.block(?,?, ?, ?).noalias() += hessian;
+                H.block(index_i, index_j, dim_i, dim_j).noalias() += hessian;
                 if (j != i) {
                     // 对称的下三角
 		    // TODO:: home work. 完成 H index 的填写.
                     // H.block(?,?, ?, ?).noalias() += hessian.transpose();
+                    H.block(index_j, index_i, dim_j, dim_i).noalias() += hessian.transpose();
                 }
             }
             b.segment(index_i, dim_i).noalias() -= JtW * edge.second->Residual();
@@ -372,6 +374,11 @@ void Problem::SolveLinearSystem() {
         // MatXX Hmp = Hessian_.block(?,?, ?, ?);
         // VecX bpp = b_.segment(?,?);
         // VecX bmm = b_.segment(?,?);
+        MatXX Hmm = Hessian_.block(reserve_size, reserve_size, marg_size, marg_size);
+        MatXX Hpm = Hessian_.block(0, reserve_size, reserve_size, marg_size);
+        MatXX Hmp = Hessian_.block(reserve_size, 0, marg_size, reserve_size);
+        VecX bpp = b_.segment(0, reserve_size);
+        VecX bmm = b_.segment(reserve_size, marg_size);
 
         // Hmm 是对角线矩阵，它的求逆可以直接为对角线块分别求逆，如果是逆深度，对角线块为1维的，则直接为对角线的倒数，这里可以加速
         MatXX Hmm_inv(MatXX::Zero(marg_size, marg_size));
@@ -385,6 +392,8 @@ void Problem::SolveLinearSystem() {
         MatXX tempH = Hpm * Hmm_inv;
         // H_pp_schur_ = Hessian_.block(?,?,?,?) - tempH * Hmp;
         // b_pp_schur_ = bpp - ? * ?;
+        H_pp_schur_ = Hessian_.block(0, 0, reserve_size, reserve_size) - tempH * Hmp;
+        b_pp_schur_ = bpp - tempH * bmm;
 
         // step2: solve Hpp * delta_x = bpp
         VecX delta_x_pp(VecX::Zero(reserve_size));
@@ -401,6 +410,7 @@ void Problem::SolveLinearSystem() {
         // TODO:: home work. step3: solve landmark
         VecX delta_x_ll(marg_size);
         // delta_x_ll = ???;
+        delta_x_ll = Hmm_inv * (bmm - Hmp * delta_x_pp);
         delta_x_.tail(marg_size) = delta_x_ll;
 
     }
@@ -579,6 +589,8 @@ void Problem::TestMarginalize() {
     Eigen::MatrixXd temp_botRows = H_marg.block(idx + dim, 0, reserve_size - idx - dim, reserve_size);
     // H_marg.block(?,?,?,?) = temp_botRows;
     // H_marg.block(?,?,?,?) = temp_rows;
+    H_marg.block(idx, 0, reserve_size - idx - dim, reserve_size) = temp_botRows;
+    H_marg.block(reserve_size - dim, 0, dim, reserve_size) = temp_rows;
 
     // 将 col i 移动矩阵最右边
     Eigen::MatrixXd temp_cols = H_marg.block(0, idx, reserve_size, dim);
@@ -604,6 +616,9 @@ void Problem::TestMarginalize() {
     //Eigen::MatrixXd Arm = H_marg.block(?,?,?,?);
     //Eigen::MatrixXd Amr = H_marg.block(?,?,?,?);
     //Eigen::MatrixXd Arr = H_marg.block(?,?,?,?);
+    Eigen::MatrixXd Arm = H_marg.block(0, n2, n2, m2);
+    Eigen::MatrixXd Amr = H_marg.block(n2, 0, m2, n2);
+    Eigen::MatrixXd Arr = H_marg.block(0, 0, n2, n2);
 
     Eigen::MatrixXd tempB = Arm * Amm_inv;
     Eigen::MatrixXd H_prior = Arr - tempB * Amr;
